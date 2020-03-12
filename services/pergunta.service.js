@@ -17,13 +17,13 @@ service.delete = _delete;
 
 module.exports = service;
 
-function authenticate(perguntaname, password) {
+function authenticate(perguntaname, resposta) {
     var deferred = Q.defer();
 
     db.perguntas.findOne({ perguntaname: perguntaname }, function (err, pergunta) {
         if (err) deferred.reject(err.name + ': ' + err.message);
 
-        if (pergunta && bcrypt.compareSync(password, pergunta.hash)) {
+        if (pergunta && bcrypt.compareSync(resposta, pergunta.hash)) {
             // authentication successful
             deferred.resolve({token :jwt.sign({ sub: pergunta._id }, config.secret), perguntaId: pergunta._id});
         } else {
@@ -42,7 +42,7 @@ function getById(_id) {
         if (err) deferred.reject(err.name + ': ' + err.message);
 
         if (pergunta) {
-            // return pergunta (without hashed password)
+            // return pergunta (without hashed resposta)
             deferred.resolve(_.omit(pergunta, 'hash'));
         } else {
             // pergunta not found
@@ -71,11 +71,11 @@ function create(perguntaParam) {
         });
 
     function createpergunta() {
-        // set pergunta object to perguntaParam without the cleartext password
-        var pergunta = _.omit(perguntaParam, 'password');
+        // set pergunta object to perguntaParam without the cleartext resposta
+        var pergunta = _.omit(perguntaParam, 'resposta');
 
-        // add hashed password to pergunta object
-        pergunta.hash = bcrypt.hashSync(perguntaParam.password, 10);
+        // add hashed resposta to pergunta object
+        pergunta.hash = bcrypt.hashSync(perguntaParam.resposta, 10);
 
         db.perguntas.insert(
             pergunta,
@@ -123,9 +123,9 @@ function update(_id, perguntaParam) {
             perguntaname: perguntaParam.perguntaname,
         };
 
-        // update password if it was entered
-        if (perguntaParam.password) {
-            set.hash = bcrypt.hashSync(perguntaParam.password, 10);
+        // update resposta if it was entered
+        if (perguntaParam.resposta) {
+            set.hash = bcrypt.hashSync(perguntaParam.resposta, 10);
         }
 
         db.perguntas.update(
