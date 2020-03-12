@@ -13,14 +13,14 @@ router.delete('/:_id', deletepergunta);
 module.exports = router;
 
 function authenticatepergunta(req, res) {
-    perguntaService.authenticate(req.body.perguntaname, req.body.password)
+    perguntaService.authenticate(req.body.perguntaname, req.body.resposta)
         .then(function (response) {
             if (response) {
                 // authentication successful
                 res.send({ perguntaId: response.perguntaId, token: response.token });
             } else {
                 // authentication failed
-                res.status(401).send('perguntaname or password is incorrect');
+                res.status(401).send('perguntaname or resposta is incorrect');
             }
         })
         .catch(function (err) {
